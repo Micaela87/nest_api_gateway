@@ -1,0 +1,20 @@
+import { Module } from '@nestjs/common';
+import { UserController } from './user.controller';
+import { UserService } from './user.service';
+import { ClientsModule, Transport } from '@nestjs/microservices';
+
+@Module({
+    imports: [
+        ClientsModule.register([
+        {
+            name: 'API_SERVICE',
+            transport: Transport.TCP,
+            options: { host: '127.0.0.1', port: 3001 },
+            },
+        ]),
+    ],
+    controllers: [UserController],
+    providers: [UserService],
+    exports: [UserService]
+})
+export class UserModule {}

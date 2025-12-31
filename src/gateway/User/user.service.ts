@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { Inject } from '@nestjs/common/decorators';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
-import { CreateUserDTO } from 'src/db/userDTOs/CreateUserDTO';
-import { UserDTO } from 'src/db/userDTOs/UserDTO';
+import { CreateUserDTO } from 'src/DTOs/UserDTOs/CreateUserDTO';
+import { UserDTO } from 'src/DTOs/UserDTOs/UserDTO';
 
 @Injectable()
 export class UserService {
@@ -28,8 +28,25 @@ export class UserService {
     try {
 
       const pattern = { cmd: 'create_user' };
-      console.log(createUserDTO);
-      return await firstValueFrom(this.client.send<CreateUserDTO>(pattern, createUserDTO)) as UserDTO;
+      return await firstValueFrom(this.client.send<UserDTO>(pattern, createUserDTO));
+
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  async findUser(email: string): Promise<UserDTO> {
+
+    try {
+
+      const pattern = { cmd: 'find_user' };
+      const user: UserDTO | undefined = await firstValueFrom(this.client.send<UserDTO>(pattern, email));
+
+      if (!user) {
+        throw new Error("User not found");
+      }
+
+      return user;
 
     } catch (error) {
       throw new Error(error.message);
