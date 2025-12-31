@@ -7,11 +7,13 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
     imports: [
         ClientsModule.register([
         {
-            name: 'API_SERVICE',
+            name: process.env.MICROSERVICES_NAME ?? 'API_SERVICE',
             transport: Transport.TCP,
-            options: { host: '127.0.0.1', port: 3001 },
-            },
-        ]),
+            options: {
+                host: process.env.MICROSERVICES_HOST ?? '127.0.0.1',
+                port: process.env.MICROSERVICES_PORT as unknown as number ?? 3001
+            }
+        }]),
     ],
     controllers: [UserController],
     providers: [UserService],

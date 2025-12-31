@@ -37,8 +37,8 @@ export class UserService {
         throw new BadRequestException();
       }
 
-      const cmd = { cmd: 'find_user' };
-      const user: UserDTO | undefined = await firstValueFrom(this.client.send<UserDTO>(cmd, createUserDTO.email));
+      const cmd = { cmd: 'check_user' };
+      const user = await firstValueFrom(this.client.send<UserDTO>(cmd, createUserDTO.email));
 
       if (user) {
         throw new BadRequestException();

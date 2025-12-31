@@ -1,9 +1,10 @@
 import { Body, Controller, Get, Post, Res, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserDTO } from 'src/DTOs/UserDTOs/UserDTO';
-import type { CreateUserDTO } from 'src/DTOs/UserDTOs/CreateUserDTO';
+import { CreateUserDTO } from 'src/DTOs/UserDTOs/CreateUserDTO';
 import type { Response } from 'express';
 import { AuthGuard } from '../Auth/auth.guard';
+import { ApiBearerAuth, ApiBody } from '@nestjs/swagger';
 
 @Controller("users")
 export class UserController {
@@ -11,6 +12,7 @@ export class UserController {
   constructor(private readonly userService: UserService) { }
 
   @UseGuards(AuthGuard)
+  @ApiBearerAuth('Authorization')
   @Get()
   async getUsers(
     @Res() response: Response<{ data: UserDTO[] | string }>
@@ -27,6 +29,8 @@ export class UserController {
     
   }
 
+  @ApiBody({ type: CreateUserDTO })
+  @ApiBearerAuth('Authorization')
   @UseGuards(AuthGuard)
   @Post()
   async createUser(
