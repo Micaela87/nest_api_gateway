@@ -1,56 +1,46 @@
-import { Injectable } from '@nestjs/common';
-import { CreateUserDTO } from 'src/db/UserDTOs/CreateUserDTO';
-import { UserDTO } from 'src/db/UserDTOs/UserDTO';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { User } from 'src/db/Schemas/user.schema';
+import { CreateUserDTO } from 'src/db/DTOs/UserDTOs/CreateUserDTO';
+import { UserDTO } from 'src/db/DTOs/UserDTOs/UserDTO';
 
 @Injectable()
 export class UserService {
 
-  public users: UserDTO[] = [
-        {
-          id: "string",
-          firstName: "string",
-          lastName: "string",
-          email: "milano.micael@gmail.com",
-          password: "Pa$$w0rD",
-          dateOfBirth: new Date()
-        },
-        {
-          id: "string",
-          firstName: "string",
-          lastName: "string",
-          email: "milano.micael@hotmail.com",
-          password: "Pa$$w0rD",
-          dateOfBirth: new Date()
-        }
-      ]
+  constructor(@InjectModel(User.name) private userModel: Model<User>) {}
   
   async getUsers(): Promise<UserDTO[]> {
-    return await new Promise((resolve) => {
-      resolve(this.users)
-    });
+    return await this.userModel.find();
   }
 
   async createUser(createUserDTO: CreateUserDTO): Promise<UserDTO> {
     
-    this.users.push({
-      id: "string",
-      ...createUserDTO
-    });
+    try {
 
-    return await new Promise((resolve) => {
-      resolve({
-        id: "string",
-        ...createUserDTO
-      })
-    })
+      return await this.userModel.create(createUserDTO);
+
+    } catch (error) {
+      throw new Error(error.message);
+    }
+    
   }
 
-  async findUser(email: string): Promise<UserDTO | undefined> {
+  async findUser(email: string): Promise<UserDTO> {
     
-    const user: UserDTO | undefined = this.users.find((user: UserDTO) => user.email === email);
-    return await new Promise((resolve) => {
-      resolve(user)
-    });
+    try {
+
+      const user = await this.userModel.findOne({ email });
+
+      if (!user) {
+        throw new NotFoundException();
+      }
+
+      return user;
+
+    } catch (error) {
+      throw new Error(error.message);
+    }
 
   }
 }
