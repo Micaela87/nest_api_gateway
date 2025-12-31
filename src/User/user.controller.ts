@@ -2,6 +2,7 @@ import { Controller } from '@nestjs/common';
 import { UserService } from './user.service';
 import { MessagePattern } from '@nestjs/microservices';
 import { UserDTO } from 'src/db/UserDTOs/UserDTO';
+import type { CreateUserDTO } from 'src/db/UserDTOs/CreateUserDTO';
 
 @Controller()
 export class UserController {
@@ -13,8 +14,12 @@ export class UserController {
   }
 
   @MessagePattern({ cmd: 'create_user' })
-  async createUser(createUserDTO): Promise<UserDTO> {
-    console.log('im here');
+  async createUser(createUserDTO: CreateUserDTO): Promise<UserDTO> {
     return await this.userService.createUser(createUserDTO);
+  }
+
+  @MessagePattern({ cmd: 'find_user' })
+  async findUser(email: string): Promise<UserDTO | undefined> {
+    return await this.userService.findUser(email);
   }
 }
