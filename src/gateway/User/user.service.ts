@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { Inject } from '@nestjs/common/decorators';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
@@ -27,6 +27,24 @@ export class UserService {
 
     try {
 
+      // Start validation block
+      if (
+        !createUserDTO.firstName ||
+        !createUserDTO.lastName ||
+        !createUserDTO.email ||
+        !createUserDTO.password
+      ) {
+        throw new BadRequestException();
+      }
+
+      const cmd = { cmd: 'find_user' };
+      const user: UserDTO | undefined = await firstValueFrom(this.client.send<UserDTO>(cmd, createUserDTO.email));
+
+      if (user) {
+        throw new BadRequestException();
+      }
+      // End validation block
+
       const pattern = { cmd: 'create_user' };
       return await firstValueFrom(this.client.send<UserDTO>(pattern, createUserDTO));
 
@@ -39,11 +57,23 @@ export class UserService {
 
     try {
 
+      // Start validation block
+      if (!email) {
+        throw new BadRequestException();
+      }
+
+      const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+
+      if (!regex.test(email)) {
+        throw new BadRequestException();
+      }
+      // End validation block
+
       const pattern = { cmd: 'find_user' };
       const user: UserDTO | undefined = await firstValueFrom(this.client.send<UserDTO>(pattern, email));
 
       if (!user) {
-        throw new Error("User not found");
+        throw new NotFoundException();
       }
 
       return user;

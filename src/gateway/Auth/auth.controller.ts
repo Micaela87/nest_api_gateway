@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Res } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Post, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import type { Response } from 'express';
 import type { SignInDTO } from 'src/DTOs/AuthDTOs/SignInDTO';
@@ -9,17 +9,21 @@ export class AuthController {
 
   @Post('login')
   async signIn(
-      @Res() response: Response<{ access_token: string } | { message: string }>,
-      @Body() signInDto: SignInDTO
-  ): Promise<Response<{ access_token: string } | { message: string }>> {
+      @Res() response: Response<{ access_token: string } | { data: string }>,
+      @Body() signInDTO: SignInDTO
+  ): Promise<Response<{ access_token: string } | { data: string }>> {
       
       try {
           
-          const token = await this.authService.signIn(signInDto.email, signInDto.password);
+          if (!signInDTO.email || !signInDTO.password) {
+              throw new BadRequestException();
+          }
+          
+          const token = await this.authService.signIn(signInDTO.email, signInDTO.password);
           return response.status(200).json({ ...token });
 
       } catch (error) {
-          return response.status(403).json({ message: error.message })
+          return response.status(401).json({ data: error.message })
       }
     
   }
