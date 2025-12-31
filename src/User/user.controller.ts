@@ -22,4 +22,9 @@ export class UserController {
   async findUser(email: string): Promise<UserDTO | undefined> {
     return await this.userService.findUser(email);
   }
+
+  @MessagePattern({ cmd: 'check_user' })
+  async checkUser(email: string): Promise<boolean> {
+    return await this.userService.checkUser(email);
+  }
 }

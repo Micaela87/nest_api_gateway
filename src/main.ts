@@ -5,7 +5,10 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.createMicroservice(AppModule, {
     transport: Transport.TCP,
-    options: { host: '127.0.0.1', port: 3001 },
+    options: {
+      host: process.env.HOST ?? '127.0.0.1',
+      port: process.env.PORT ?? 3001
+    },
   });
   await app.listen();
 }

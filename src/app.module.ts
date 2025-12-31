@@ -6,8 +6,9 @@ import { UserModule } from './User/user.module';
 @Module({
   imports: [
     UserModule,
-    MongooseModule.forRoot('mongodb://localhost:27017/dev', {
+    MongooseModule.forRoot(process.env.MONGO_CONN_STRING ?? 'mongodb://localhost:27017/dev', {
       onConnectionCreate: (connection: Connection) => {
+        
         connection.on('connected', () => console.log('connected'));
         connection.on('open', () => console.log('open'));
         connection.on('disconnected', () => console.log('disconnected'));

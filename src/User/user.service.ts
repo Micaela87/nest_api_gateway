@@ -43,4 +43,22 @@ export class UserService {
     }
 
   }
+
+  async checkUser(email: string): Promise<boolean> {
+    
+    try {
+
+      const user = await this.userModel.findOne({ email });
+
+      if (user) {
+        return true;
+      }
+
+      return false;
+
+    } catch (error) {
+      throw new Error(error.message);
+    }
+
+  }
 }
